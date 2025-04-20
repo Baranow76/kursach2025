@@ -20,9 +20,9 @@
   <!-- в блоке «Ключевые выводы» -->
 <ul class="mb-0">
   <li>
-    <strong>Частная корреляция</strong>
+    <strong>Частная корреляция «Стаж → Зарплата» </strong>
     {% if pcorr is not none %}
-      …: <span class="h5">{{ pcorr }}</span>
+      : <span class="h5">{{ pcorr }}</span>
       {% if pcorr_p < 0.05 %}
         <small class="text-success">(p &lt; 0.05)</small>
       {% endif %}
@@ -62,7 +62,8 @@
   <div class="col-md-3">
     <div class="card shadow-sm p-3 text-center">
       <h6>Мин/макс зарплата</h6>
-      <p class="h5">{{ salary_min }} ₽ / {{ salary_max }} ₽</p>
+          <p class="h5">Мин: {{ salary_min }} ₽ </p>
+          <p class="h5">Макс: {{ salary_max }} ₽ </p>
       <small class="text-muted">Стандартное отклонение: {{ salary_std }} ₽</small>
     </div>
   </div>

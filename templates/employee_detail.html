@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{{ person.first_name }} {{ person.last_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>Сотрудник: {{ person.first_name }} {{ person.last_name }}</h2>
+  <a href="{{ url_for('employee_edit', person_id=person.id) }}" class="btn btn-outline-primary">
+    Редактировать
+  </a>
+</div>
+
+<div class="card p-4">
+  <dl class="row">
+    <dt class="col-sm-3">Имя</dt><dd class="col-sm-9">{{ person.first_name }}</dd>
+    <dt class="col-sm-3">Фамилия</dt><dd class="col-sm-9">{{ person.last_name }}</dd>
+    <dt class="col-sm-3">Отчество</dt><dd class="col-sm-9">{{ person.patronymic or "—" }}</dd>
+    <dt class="col-sm-3">Возраст</dt><dd class="col-sm-9">{{ person.age or "—" }}</dd>
+    <dt class="col-sm-3">Пол</dt><dd class="col-sm-9">{{ person.gender }}</dd>
+    <dt class="col-sm-3">Образование</dt><dd class="col-sm-9">{{ person.education }}</dd>
+    <dt class="col-sm-3">Должность</dt><dd class="col-sm-9">{{ person.position }}</dd>
+    <dt class="col-sm-3">Стаж (лет)</dt><dd class="col-sm-9">{{ person.experience }}</dd>
+    <dt class="col-sm-3">Зарплата</dt><dd class="col-sm-9">{{ "{:,.0f}".format(person.salary) }} ₽</dd>
+    <dt class="col-sm-3">Телефон</dt><dd class="col-sm-9">{{ person.phone }}</dd>
+    <dt class="col-sm-3">Адрес</dt><dd class="col-sm-9">{{ person.address }}</dd>
+  </dl>
+</div>
+{% endblock %}

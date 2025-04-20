@@ -1,0 +1,13 @@
+/* static/css/custom.css */
+
+/* Все .card белые по умолчанию + плавный переход */
+.card {
+  background-color: #fff;
+  transition: background-color 0.2s ease;
+}
+
+/* При наведении на сам .card — меняем фон */
+.card:hover {
+  background-color: #f2f2f2 !important;
+  cursor: pointer;
+}

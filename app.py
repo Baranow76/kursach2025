@@ -49,6 +49,23 @@ def index():
     # лендинг
     return render_template("index.html")
 
+@app.route("/employee/<int:person_id>")
+def employee_detail(person_id):
+    person = Person.query.get_or_404(person_id)
+    return render_template("employee_detail.html", person=person)
+
+@app.route("/employee/<int:person_id>/edit", methods=["GET", "POST"])
+def employee_edit(person_id):
+    person = Person.query.get_or_404(person_id)
+    form = PersonForm(obj=person)
+    if form.validate_on_submit():
+        # записываем изменения из формы в объект
+        form.populate_obj(person)
+        db.session.commit()
+        flash("Данные сотрудника обновлены", "success")
+        return redirect(url_for("employee_detail", person_id=person.id))
+    return render_template("employee_edit.html", form=form, person=person)
+
 # новая страница со списком
 @app.route("/employees")
 def employees():
