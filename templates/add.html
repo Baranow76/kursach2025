@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Добавить сотрудника{% endblock %}
+
+{% block content %}
+<h2>Добавить сотрудника</h2>
+
+<form method="POST">
+  {{ form.hidden_tag() }}
+
+  <div class="row g-3">
+    <div class="col-md-4">
+      {{ form.first_name.label(class="form-label") }}
+      {{ form.first_name(class="form-control") }}
+    </div>
+    <div class="col-md-4">
+      {{ form.last_name.label(class="form-label") }}
+      {{ form.last_name(class="form-control") }}
+    </div>
+    <div class="col-md-4">
+      {{ form.patronymic.label(class="form-label") }}
+      {{ form.patronymic(class="form-control") }}
+    </div>
+
+    <div class="col-md-2">
+      {{ form.age.label(class="form-label") }}
+      {{ form.age(class="form-control") }}
+    </div>
+    <div class="col-md-2">
+      {{ form.gender.label(class="form-label") }}
+      {{ form.gender(class="form-control") }}
+    </div>
+    <div class="col-md-4">
+      {{ form.education.label(class="form-label") }}
+      {{ form.education(class="form-control") }}
+    </div>
+    <div class="col-md-4">
+      {{ form.position.label(class="form-label") }}
+      {{ form.position(class="form-control") }}
+    </div>
+
+    <div class="col-md-2">
+      {{ form.experience.label(class="form-label") }}
+      {{ form.experience(class="form-control") }}
+    </div>
+    <div class="col-md-2">
+      {{ form.salary.label(class="form-label") }}
+      {{ form.salary(class="form-control") }}
+    </div>
+    <div class="col-md-4">
+      {{ form.phone.label(class="form-label") }}
+      {{ form.phone(class="form-control") }}
+    </div>
+    <div class="col-md-4">
+      {{ form.address.label(class="form-label") }}
+      {{ form.address(class="form-control") }}
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <button type="submit" class="btn btn-primary">{{ form.submit.label.text }}</button>
+    <a href="{{ url_for('employees') }}" class="btn btn-secondary">Отмена</a>
+  </div>
+</form>
+{% endblock %}

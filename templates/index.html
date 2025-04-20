@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}О проекте{% endblock %}
+
+{% block content %}
+<div class="text-center my-5">
+  <h1 class="display-4">People Analytics</h1>
+  <p class="lead">
+    Удобный инструмент для хранения данных сотрудников,
+    мощной визуальной аналитики и прогноза зарплат.
+  </p>
+  <img src="{{ url_for('static', filename='1.png') }}"
+       class="img-fluid my-4"
+       alt="Превью дашборда">
+  <div class="d-flex justify-content-center gap-3">
+    <a href="{{ url_for('employees') }}" class="btn btn-primary btn-lg">
+      Перейти к сотрудникам
+    </a>
+    <a href="{{ url_for('analytics') }}" class="btn btn-outline-secondary btn-lg">
+      Перейти к аналитике
+    </a>
+  </div>
+</div>
+
+<section class="container my-5">
+  <h2 class="mb-4 text-center">Возможности</h2>
+  <div class="row text-center">
+    <div class="col-md-4">
+      <i class="bi bi-file-earmark-spreadsheet fs-1 mb-2"></i>
+      <h5>Импорт CSV</h5>
+      <p>Быстро загружайте данные из табличных файлов.</p>
+    </div>
+    <div class="col-md-4">
+      <i class="bi bi-bar-chart-line fs-1 mb-2"></i>
+      <h5>Интерактивная аналитика</h5>
+      <p>Корреляции, регрессии, распределения и многое другое.</p>
+    </div>
+    <div class="col-md-4">
+      <i class="bi bi-pie-chart fs-1 mb-2"></i>
+      <h5>Графики и отчёты</h5>
+      <p>Экспорт в PDF, экспорт данных и наглядные дашборды.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}

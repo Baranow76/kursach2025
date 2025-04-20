@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Сотрудники{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2>Сотрудники</h2>
+  <div>
+    <a href="{{ url_for('upload') }}" class="btn btn-outline-primary me-2">
+      Импорт CSV
+    </a>
+    <a href="{{ url_for('add') }}" class="btn btn-primary">
+      Добавить
+    </a>
+      <!-- Кнопка удаления всех сотрудников -->
+    <form action="{{ url_for('delete_all_employees') }}" method="post" class="d-inline">
+      <button type="submit" class="btn btn-outline-danger"
+              onclick="return confirm('Вы уверены, что хотите удалить ВСЕ записи?');">
+        Удалить всех
+      </button>
+    </form>
+  </div>
+</div>
+
+<div class="mb-4">
+  <input id="searchInput" type="text" class="form-control" placeholder="Поиск...">
+</div>
+
+<div id="cardsContainer" class="row g-4">
+  {% for p in people %}
+  <div class="col-sm-6 col-md-4 col-lg-3 employee-card" 
+       data-name="{{ p.first_name }} {{ p.last_name }}" 
+       data-position="{{ p.position }}">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body d-flex flex-column">
+        <div class="d-flex align-items-center mb-3">
+          <div class="avatar-placeholder bg-secondary text-white rounded-circle me-3">
+            {{ p.first_name[0] }}{{ p.last_name[0] }}
+          </div>
+          <h5 class="card-title mb-0">{{ p.first_name }} {{ p.last_name }}</h5>
+        </div>
+        <p class="card-text mb-1"><strong>Должность:</strong> {{ p.position or '–' }}</p>
+        <p class="card-text mb-1"><strong>Зарплата:</strong> {{ "%.0f"|format(p.salary or 0) }} ₽</p>
+        <p class="card-text mb-3"><strong>Стаж:</strong> {{ p.experience or 0 }} лет</p>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+<!-- пагинация -->
+<nav aria-label="Page navigation" class="mt-4">
+  <ul class="pagination justify-content-center">
+    {% if pagination.has_prev %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('employees', page=pagination.prev_num) }}">« Назад</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled">
+        <span class="page-link">« Назад</span>
+      </li>
+    {% endif %}
+
+    {# компактная итерация по страницам #}
+    {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+      {% if p %}
+        <li class="page-item {% if p == pagination.page %}active{% endif %}">
+          <a class="page-link" href="{{ url_for('employees', page=p) }}">{{ p }}</a>
+        </li>
+      {% else %}
+        <li class="page-item disabled"><span class="page-link">…</span></li>
+      {% endif %}
+    {% endfor %}
+
+    {% if pagination.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('employees', page=pagination.next_num) }}">Вперёд »</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled">
+        <span class="page-link">Вперёд »</span>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+document.getElementById('searchInput').addEventListener('input', function() {
+  const q = this.value.toLowerCase().trim();
+  document.querySelectorAll('.employee-card').forEach(card => {
+    const name = card.dataset.name.toLowerCase();
+    const pos  = card.dataset.position.toLowerCase();
+    card.style.display = (name.includes(q) || pos.includes(q)) ? 'block' : 'none';
+  });
+});
+</script>
+{% endblock %}

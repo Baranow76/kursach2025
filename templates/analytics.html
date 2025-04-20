@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block title %}Аналитика{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Дашборд People Analytics</h2>
+
+<!-- KPI‑карточки -->
+<div class="row g-4 mb-4">
+  {% for t,v,u in [("Средняя зарплата",avg_salary,"₽"),
+                   ("Медианная зарплата",median_salary,"₽"),
+                   ("Средний возраст",mean_age,"лет"),
+                   ("Средний стаж",mean_exper,"лет")] %}
+  <div class="col-md-3"><div class="card p-3 text-center shadow-sm">
+     <h6>{{t}}</h6><p class="h4">{{v}} {{u}}</p></div></div>{% endfor %}
+</div>
+
+<!-- Ключевые выводы -->
+<div class="card shadow-sm p-4 mb-4">
+  <h5 class="mb-3">Ключевые выводы</h5>
+  <!-- в блоке «Ключевые выводы» -->
+<ul class="mb-0">
+  <li>
+    <strong>Частная корреляция</strong>
+    {% if pcorr is not none %}
+      …: <span class="h5">{{ pcorr }}</span>
+      {% if pcorr_p < 0.05 %}
+        <small class="text-success">(p &lt; 0.05)</small>
+      {% endif %}
+    {% else %}
+      <span class="text-muted">Недостаточно данных</span>
+    {% endif %}
+  </li>
+  <li>
+    <strong>Модель OLS</strong>
+    {% if slope is not none %}
+      ŷ = {{ intercept }} + {{ slope }}·x,
+      R² = {{ r2 }}
+      {% if slope_p < 0.05 %}
+        <small class="text-success">(значимый)</small>
+      {% endif %}
+    {% else %}
+      <span class="text-muted">Недостаточно данных</span>
+    {% endif %}
+  </li>
+</ul>
+</div>
+
+<!-- две самые важные визуализации -->
+<div class="row g-4">
+  <div class="col-lg-6"><div class="card p-3 shadow-sm h-100">
+      <h6 class="text-center">Матрица корреляций</h6>
+      <div id="heatmap" style="height:280px;"></div></div></div>
+
+  <div class="col-lg-6"><div class="card p-3 shadow-sm h-100">
+      <h6 class="text-center">Стаж vs Зарплата (регрессия)</h6>
+      <div id="scatter" style="height:280px;"></div></div></div>
+</div>
+
+<!-- Профессиональные метрики -->
+<div class="row g-4 mb-4">
+  <!-- Диапазон и разброс -->
+  <div class="col-md-3">
+    <div class="card shadow-sm p-3 text-center">
+      <h6>Мин/макс зарплата</h6>
+      <p class="h5">{{ salary_min }} ₽ / {{ salary_max }} ₽</p>
+      <small class="text-muted">Стандартное отклонение: {{ salary_std }} ₽</small>
+    </div>
+  </div>
+
+  <!-- Квартильные границы -->
+  <div class="col-md-3">
+    <div class="card shadow-sm p-3 text-center">
+      <h6>Квартильная статистика</h6>
+      <p class="mb-0">Q1 = {{ q1 }} ₽</p>
+      <p class="mb-0">Q2 = {{ q2 }} ₽</p>
+      <p class="mb-0">Q3 = {{ q3 }} ₽</p>
+      <small class="text-muted">IQR = {{ iqr }} ₽</small>
+    </div>
+  </div>
+
+  <!-- Гендерный разрыв -->
+  <div class="col-md-3">
+    <div class="card shadow-sm p-3 text-center">
+      <h6>Гендерный разрыв</h6>
+      <p class="mb-0">М = {{ mean_men }} ₽</p>
+      <p class="mb-0">Ж = {{ mean_wom }} ₽</p>
+      <small class="text-muted">Ж/М = {{ gender_gap }}</small>
+    </div>
+  </div>
+
+  <!-- Нижние/верхние 5% -->
+  <div class="col-md-3">
+    <div class="card shadow-sm p-3 text-center">
+      <h6>Нижние/верхние 5%</h6>
+      <p class="mb-0">Нижних: {{ pct_low }}</p>
+      <p class="mb-0">Верхних: {{ pct_high }}</p>
+      <small class="text-muted">по числу сотрудников</small>
+    </div>
+  </div>
+</div>
+
+<!-- Отклонение по образованию -->
+<div class="card shadow-sm p-3 mb-4">
+  <h6 class="mb-2">Отклонение средней зарплаты по образованию</h6>
+  <div class="row">
+    {% for edu, dev in edu_dev.items() %}
+    <div class="col-sm-4 mb-2">
+      <strong>{{ edu }}</strong>:
+      {% if dev >= 0 %}
+        <span class="text-success">+{{ dev }} ₽</span>
+      {% else %}
+        <span class="text-danger">{{ dev }} ₽</span>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+const common={template:'plotly_white',margin:{t:20,l:50,r:20,b:30},font:{size:11}},
+      cfg={displayModeBar:false,responsive:true};
+
+// === данные ===
+const corr={{ corr_json|safe }},
+      labels=Object.keys(corr),
+      z=labels.map(r=>labels.map(c=>corr[r][c]));
+
+const scatter={{ scatter|safe }},
+      line={{ reg_line|safe }};
+
+// === heat‑map ===
+Plotly.newPlot('heatmap',[{z,x:labels,y:labels,type:'heatmap',
+  colorscale:'RdBu',reversescale:true,zmin:-1,zmax:1}],
+  {...common,title:{text:'Корреляции',x:0.5}},cfg);
+
+// === scatter + регрессия ===
+Plotly.newPlot('scatter',[
+  {x:scatter.map(p=>p.experience),y:scatter.map(p=>p.salary),
+   mode:'markers',marker:{size:6,opacity:0.6},name:'Сотрудники'},
+  {x:line.map(p=>p.x),y:line.map(p=>p.y),
+   mode:'lines',line:{width:3,color:'#ff7f0e'},
+   name:'ŷ = {{ intercept }} + {{ slope }}·x'}],
+  {...common,xaxis:{title:'Стаж, лет'},yaxis:{title:'₽'}},cfg);
+</script>
+{% endblock %}
